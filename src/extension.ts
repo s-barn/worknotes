@@ -11,7 +11,8 @@ const notesRootSetting = 'notesRoot';
 export function activate(context: vscode.ExtensionContext): void {
   const dependencies: WorkNotesPanelDependencies = {
     getStore: () => getStore(false),
-    chooseRoot
+    chooseRoot,
+    refreshViews: () => refreshViews()
   };
 
   const providers = ['notes', 'tasks', 'tags'].map(section => {
