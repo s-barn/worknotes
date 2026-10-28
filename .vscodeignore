@@ -1,0 +1,14 @@
+.github/**
+.gitignore
+.superpowers/**
+.vscode/**
+docs/**
+src/**
+test/**
+node_modules/**
+dist/src/**
+dist/test/**
+tsconfig.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+*.vsix

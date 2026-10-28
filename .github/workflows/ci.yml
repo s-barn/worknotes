@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
+      - run: pnpm run package
+      - uses: actions/upload-artifact@v7
+        if: github.event_name == 'push'
+        with:
+          name: worknotes-vsix-${{ github.run_number }}-${{ github.sha }}
+          path: worknotes-*.vsix
+          if-no-files-found: error
+          retention-days: 30

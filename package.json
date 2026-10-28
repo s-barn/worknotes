@@ -1,0 +1,81 @@
+{
+  "name": "worknotes",
+  "displayName": "WorkNotes",
+  "description": "A local-first notes workspace for Visual Studio Code with a focused three-column layout.",
+  "version": "0.1.0",
+  "publisher": "s-barn",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/s-barn/worknotes.git"
+  },
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "notes",
+    "markdown",
+    "tasks",
+    "daily notes"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onCommand:worknotes.open",
+    "onCommand:worknotes.quickCapture",
+    "onCommand:worknotes.openDaily",
+    "onCommand:worknotes.chooseNotesRoot"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "worknotes.open",
+        "title": "WorkNotes: Open"
+      },
+      {
+        "command": "worknotes.quickCapture",
+        "title": "WorkNotes: Quick Capture"
+      },
+      {
+        "command": "worknotes.openDaily",
+        "title": "WorkNotes: Open Daily Note"
+      },
+      {
+        "command": "worknotes.chooseNotesRoot",
+        "title": "WorkNotes: Choose Notes Folder"
+      }
+    ],
+    "configuration": {
+      "title": "WorkNotes",
+      "properties": {
+        "worknotes.notesRoot": {
+          "type": "string",
+          "default": "",
+          "scope": "window",
+          "description": "Local folder containing WorkNotes Markdown notes and templates."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "tsc -p tsconfig.json && pnpm run bundle",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "pnpm run clean && pnpm run build && node --test dist/test/*.test.js",
+    "package": "pnpm run test && vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@types/vscode": "^1.95.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.25.11",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@11.25.0"
+}
