@@ -1,0 +1,41 @@
+name: Publish to VS Code Marketplace
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    environment: marketplace
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Verify release tag
+        run: node .github/scripts/verify-release-tag.js
+      - run: pnpm run check
+      - run: pnpm run package
+      - name: Publish packaged extension
+        shell: pwsh
+        run: |
+          $version = (Get-Content -Raw package.json | ConvertFrom-Json).version
+          $packagePath = "worknotes-$version.vsix"
+          if (-not (Test-Path -LiteralPath $packagePath)) {
+            throw "Expected package was not created: $packagePath"
+          }
+          pnpm exec vsce publish --oidc --packagePath $packagePath
+
