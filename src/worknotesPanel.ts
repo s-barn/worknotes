@@ -9,6 +9,7 @@ import { parseClientMessage, type ClientMessage } from './webview/messages';
 export interface WorkNotesPanelDependencies {
   getStore(): Promise<NoteStore | undefined>;
   chooseRoot(): Promise<NoteStore | undefined>;
+  refreshViews?(): void;
 }
 
 export class WorkNotesPanel {
@@ -144,6 +145,7 @@ export class WorkNotesPanel {
     if (!this.selectedId || !result.notes.some(note => note.id === this.selectedId)) {
       this.selectedId = result.notes[0]?.id;
     }
+    this.dependencies.refreshViews?.();
     await this.panel.webview.postMessage({
       type: 'snapshot',
       root: store.root,
