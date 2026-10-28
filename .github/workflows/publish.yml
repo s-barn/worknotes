@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing release tag to publish
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -17,6 +23,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref }}
       - uses: pnpm/action-setup@v6
         with:
           version: 11.25.0
@@ -26,6 +34,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Verify release tag
+        env:
+          GITHUB_REF_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
         run: node .github/scripts/verify-release-tag.js
       - run: pnpm run check
       - run: pnpm run package
@@ -37,5 +47,40 @@ jobs:
           if (-not (Test-Path -LiteralPath $packagePath)) {
             throw "Expected package was not created: $packagePath"
           }
-          pnpm exec vsce publish --oidc --packagePath $packagePath
 
+          # @vscode/vsce 4.0.0 omits the Marketplace API version during OIDC
+          # exchange. Perform the documented exchange directly until a fixed
+          # upstream release is available.
+          $separator = if ($env:ACTIONS_ID_TOKEN_REQUEST_URL.Contains('?')) { '&' } else { '?' }
+          $audience = [uri]::EscapeDataString('marketplace.visualstudio.com')
+          $oidcUrl = "$($env:ACTIONS_ID_TOKEN_REQUEST_URL)${separator}audience=$audience"
+          $oidcResponse = Invoke-RestMethod -Uri $oidcUrl -Headers @{
+            Authorization = "Bearer $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+            Accept = 'application/json'
+          }
+          if (-not $oidcResponse.value) {
+            throw 'GitHub Actions did not return an OIDC token.'
+          }
+
+          $exchangeResponse = Invoke-RestMethod `
+            -Method Post `
+            -Uri 'https://marketplace.visualstudio.com/_apis/gallery/token?api-version=7.2-preview.1' `
+            -Headers @{
+              Authorization = "FederatedToken $($oidcResponse.value)"
+              Accept = 'application/json'
+            } `
+            -ContentType 'application/json' `
+            -Body (@{ publisherName = 's-barn' } | ConvertTo-Json -Compress)
+          if (-not $exchangeResponse.credential) {
+            throw 'Marketplace OIDC exchange did not return a credential.'
+          }
+
+          $env:VSCE_PAT = $exchangeResponse.credential
+          try {
+            pnpm exec vsce publish --packagePath $packagePath
+            if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+            }
+          } finally {
+            Remove-Item Env:VSCE_PAT -ErrorAction SilentlyContinue
+          }
