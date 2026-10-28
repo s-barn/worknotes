@@ -34,9 +34,16 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Verify release tag
+        shell: pwsh
         env:
-          GITHUB_REF_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
-        run: node .github/scripts/verify-release-tag.js
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+        run: |
+          $version = (Get-Content -Raw package.json | ConvertFrom-Json).version
+          $expectedTag = "v$version"
+          if ($env:RELEASE_TAG -ne $expectedTag) {
+            throw "Release tag must be $expectedTag; received $env:RELEASE_TAG."
+          }
+          Write-Host "Verified release tag $env:RELEASE_TAG."
       - run: pnpm run check
       - run: pnpm run package
       - name: Publish packaged extension
