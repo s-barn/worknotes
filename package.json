@@ -27,7 +27,10 @@
     "onCommand:worknotes.open",
     "onCommand:worknotes.quickCapture",
     "onCommand:worknotes.openDaily",
-    "onCommand:worknotes.chooseNotesRoot"
+    "onCommand:worknotes.chooseNotesRoot",
+    "onView:worknotes.notes",
+    "onView:worknotes.tasks",
+    "onView:worknotes.tags"
   ],
   "contributes": {
     "commands": [
@@ -46,6 +49,14 @@
       {
         "command": "worknotes.chooseNotesRoot",
         "title": "WorkNotes: Choose Notes Folder"
+      },
+      {
+        "command": "worknotes.openNote",
+        "title": "WorkNotes: Open Note"
+      },
+      {
+        "command": "worknotes.refreshViews",
+        "title": "WorkNotes: Refresh Navigation"
       }
     ],
     "configuration": {
@@ -58,6 +69,45 @@
           "description": "Local folder containing WorkNotes Markdown notes and templates."
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "worknotes",
+          "title": "WorkNotes",
+          "icon": "assets/worknotes-activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "worknotes": [
+        {
+          "id": "worknotes.notes",
+          "name": "Notes"
+        },
+        {
+          "id": "worknotes.tasks",
+          "name": "Tasks"
+        },
+        {
+          "id": "worknotes.tags",
+          "name": "Tags"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "worknotes.open",
+          "when": "view == worknotes.notes",
+          "group": "navigation"
+        },
+        {
+          "command": "worknotes.refreshViews",
+          "when": "view =~ /^worknotes\\./",
+          "group": "navigation"
+        }
+      ]
     }
   },
   "scripts": {
