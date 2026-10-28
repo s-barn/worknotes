@@ -4,6 +4,7 @@
   "description": "A local-first notes workspace for Visual Studio Code with a focused three-column layout.",
   "version": "0.1.0",
   "publisher": "s-barn",
+  "icon": "assets/worknotes-icon-128.png",
   "license": "MIT",
   "repository": {
     "type": "git",
