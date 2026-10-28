@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="214" height="24" viewBox="0 0 214 24" role="img" aria-label="WorkNotes">
+  <path d="M5.5 2.5h9l4 4v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-15a2 2 0 0 1 2-2Z" fill="none" stroke="#ffffff" stroke-width="1.65" stroke-linejoin="round"/>
+  <path d="M14.5 2.8v3.7h3.7" fill="none" stroke="#00d7c5" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="m6.3 10 2.3 7 3.4-4.5 3.4 4.5 2.3-7" fill="none" stroke="#ffffff" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="32" y="17.5" font-family="Segoe UI, Arial, sans-serif" font-weight="600" font-size="18" fill="#ffffff">WorkNotes</text>
+</svg>
